@@ -1,0 +1,85 @@
+{% extends 'default.html' %}    <!-- #14. Унаследовались от базового шаблона -->
+
+<!-- filters
+{% load custom_filters %}
+-->
+
+{% block content %}
+
+
+
+<!-- filters
+   <form action="" method="get">
+       {{ filterset.form.as_p }}
+       <input type="submit" value="Найти" />
+-->
+
+
+
+
+<ul class="list-articles">    <!-- #15. -->
+<!-- #12. Отображение статей (перебирается список data_db)-->
+<ul>
+    {% for p in posts %}
+            <li><div class="article-panel">
+    <p class="first">Категория: {{p.cat.name}} | Опубликовавший: {{p.published_by.username|default:"неизвестен"}}</p>
+    <p class="last">Дата: {{p.created_at|date:"d-m-Y H:i:s"}}</p>
+    </div>
+
+<!-- #50. Если у поста есть фото, то мы его выводим маленьким изображением рядом с заголовком на Главной странице -->
+{% if p.photo %}
+                   <p ><img class="img-article-left thumb" src="{{p.photo.url}}"></p>
+{% endif %}
+
+                <h2>{{p.title}}</h2>
+    {% autoescape off %}
+	{{p.content|linebreaks|truncatewords:20}}
+    {% endautoescape %}
+			<div class="clear"></div>
+			<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>    <!-- #13. url-ТЭГ и кнопка "Читать пост". -->
+			</li>
+    {% endfor %}
+</ul>
+<!-- #12. Отображение статей (перебирается список data_db)-->
+
+{% endblock %}
+
+
+
+
+<!-- Пагинация на главной странице -->
+{% block navigation %}
+{% if page_obj.has_other_pages %}
+<nav class="list-pages">
+    <ul>
+        <!-- Стрелочки туда -->
+        {% if page_obj.has_previous %}
+        <li class="page-num">
+                 <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+        </li>
+        {% endif %}
+        <!-- Стрелочки туда -->
+
+        {% for p in paginator.page_range %}
+        {% if page_obj.number == p %}
+        <li class="page-num page-num-selected">{{ p }}</li>
+        {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2  %}
+        <li class="page-num">
+            <a href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Стрелочки сюда -->
+        {% if page_obj.has_next %}
+        <li class="page-num">
+                 <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+        </li>
+        <!-- Стрелочки сюда -->
+
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
